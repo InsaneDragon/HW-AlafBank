@@ -15,7 +15,33 @@ namespace AlafBank
         static void Main(string[] args)
         {
         }
-
+        static int Sign(SqlConnection con)
+            {
+                Console.Clear();
+                int ID = 0;
+                System.Console.Write("Write you PhoneNumber:");
+                string PhoneNumber = Console.ReadLine();
+                System.Console.Write("Write you Password:");
+                string Password = Console.ReadLine();
+                Console.Clear();
+                con.Open();
+                try
+                {
+                    string insert = string.Format($"select * from Account where Login={PhoneNumber} and Password='{Password}'");
+                    SqlCommand command = new SqlCommand(insert, con);
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        ID = int.Parse(reader[0].ToString());
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+                con.Close();
+                return (ID);
+            }
         static Account Registration(SqlConnection con)
         {
             System.Console.Write("Write you PhoneNumber(It will be your login):");
