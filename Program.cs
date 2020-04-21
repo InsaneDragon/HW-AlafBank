@@ -14,6 +14,44 @@ namespace AlafBank
         private static bool Isregistered { get; set; }
         static void Main(string[] args)
         {
+            ID = 0;
+            Isregistered = false;
+            bool statuschoosed = false;
+            isAdmin = false;
+            work = true;
+            SqlConnection con = new SqlConnection(@"Data Source=localhost;Initial Catalog=AlafDB;Integrated Security=True");
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Blue;
+            System.Console.WriteLine("Welcome to Bank Alaf");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("Choose your status");
+            Console.WriteLine("1.Admin");
+            Console.WriteLine("2.Guest");
+            System.Console.Write("Status:");
+            string stat = Console.ReadLine();
+            if (stat == "1")
+            {
+                isAdmin = true;
+                statuschoosed = true;
+            }
+            if (stat == "2") { statuschoosed = true; }
+            while (statuschoosed == false)
+            {
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Red;
+                System.Console.WriteLine("Choose your status from list below!");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("1.Admin");
+                Console.WriteLine("2.Guest");
+                System.Console.Write("Status:");
+                stat = Console.ReadLine();
+                if (stat == "1")
+                {
+                    isAdmin = true;
+                    statuschoosed = true;
+                }
+                if (stat == "2") { statuschoosed = true; }
+            }
         }
         static int Sign(SqlConnection con)
             {
