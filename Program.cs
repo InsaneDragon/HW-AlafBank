@@ -10,6 +10,15 @@ namespace AlafBank
         {
         }
     }
+    class Account
+    {
+        public int Login { get; set; }
+        public string Password { get; set; }
+        public string FirstName { get; set; }
+        public string SecondName { get; set; }
+        public string MiddleName { get; set; }
+        public string BirthDate { get; set; }
+    }
     class credit
     {
         public string Gender { get; set; }
