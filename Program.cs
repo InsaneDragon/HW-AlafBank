@@ -21,7 +21,7 @@ namespace HW
             work = true;
             SqlConnection con = new SqlConnection(@"Data Source=localhost;Initial Catalog=AlafDB;Integrated Security=True");
             Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.ForegroundColor = ConsoleColor.Magenta;
             System.Console.WriteLine("Welcome to Bank Alaf");
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Choose your status");
@@ -56,7 +56,7 @@ namespace HW
             {
                 while (ID == 0 && work == true)
                 {
-                    Console.WriteLine();
+                    Console.WriteLine("========================");
                     System.Console.WriteLine("1.Register");
                     System.Console.WriteLine("2.Login");
                     System.Console.WriteLine("3.Quit");
@@ -67,10 +67,6 @@ namespace HW
                         case "1":
                             {
                                 Account acc = Registration(con);
-                                while (Isregistered == false)
-                                {
-                                    acc = Registration(con);
-                                }
                                 if (Isregistered == true)
                                 {
                                     con.Open();
@@ -78,6 +74,9 @@ namespace HW
                                     SqlCommand command = new SqlCommand(insert, con);
                                     SqlDataReader reader = command.ExecuteReader();
                                     con.Close();
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    System.Console.WriteLine("Your Account was added successfully");
+                                    Console.ForegroundColor = ConsoleColor.White;
                                 }
                             }
                             break;
@@ -109,10 +108,12 @@ namespace HW
                 }
                 if (work == true)
                 {
+                    Console.WriteLine("==========================");
                     System.Console.WriteLine("1.Take credit");
                     System.Console.WriteLine("2.View binds");
                     System.Console.WriteLine("3.Grafik pogasheniya");
-                    System.Console.WriteLine("4.Quit");
+                    System.Console.WriteLine("4.Pay for credit");
+                    System.Console.WriteLine("5.Quit");
                     Console.Write("Choice:");
                     string choise = Console.ReadLine();
                     switch (choise)
@@ -222,7 +223,9 @@ namespace HW
                                 Console.Clear();
                                 con.Open();
                                 Console.ForegroundColor = ConsoleColor.Yellow;
+                                System.Console.WriteLine("===========================");
                                 System.Console.WriteLine("Your Credits");
+                                System.Console.WriteLine("===========================");
                                 Console.ForegroundColor = ConsoleColor.White;
                                 string com = string.Format($"select * from Credits where PersonID={ID} and Status='Accepted'");
                                 if (isAdmin == true)
@@ -237,12 +240,12 @@ namespace HW
                                 while (reader.Read())
                                 {
                                     double valuepermonth = Math.Round(double.Parse(reader["Value"].ToString()) / int.Parse(reader["Term"].ToString()));
-                                    System.Console.WriteLine($"You need to pay {valuepermonth} per month {reader["Term"].ToString()} monthes. Total:{reader["Value"].ToString()}");
+                                    System.Console.WriteLine($"ID:{reader["ID"].ToString()}.You need to pay {valuepermonth} per month {reader["Term"].ToString()} monthes. Total:{reader["Value"].ToString()}");
                                 }
                                 con.Close();
                             }
                             break;
-                        case "4":
+                        case "5":
                             {
                                 work = false;
                             }
@@ -260,10 +263,72 @@ namespace HW
                                 SqlDataReader reader = command.ExecuteReader();
                                 while (reader.Read())
                                 {
-                                    string Date = reader["Day"].ToString() + "-" + reader["Month"].ToString() + "-" + reader["Year"].ToString();
                                     System.Console.WriteLine($"ID:{reader["ID"]},Credit:{reader[2]},Status:{reader[3]},FamilyStatus:{reader["FamilyStatus"]},Nationality:{reader["Nationality"]},Salary:{reader["Salary"]},Target:{reader["CreditTarget"]},Term:{reader["Term"]}");
                                 }
                                 con.Close();
+                            }
+                            break;
+                        case "4":
+                            {
+                                Console.Clear();
+                                con.Open();
+                                string insert = string.Format($"select * from Credits where PersonID={ID} and Status='Accepted'");
+                                SqlCommand command = new SqlCommand(insert, con);
+                                SqlDataReader reader = command.ExecuteReader();
+                                while (reader.Read())
+                                {
+                                    System.Console.WriteLine($"ID:{reader["ID"]},Credit:{reader[2]},Status:{reader[3]},FamilyStatus:{reader["FamilyStatus"]},Nationality:{reader["Nationality"]},Salary:{reader["Salary"]},Target:{reader["CreditTarget"]},Term:{reader["Term"]}");
+                                }
+                                con.Close();
+                                try
+                                {
+                                    bool iscredit = false;
+                                    System.Console.WriteLine("Write ID of Credit you want to pay");
+                                    Console.Write("ID:");
+                                    int id = int.Parse(Console.ReadLine());
+                                    System.Console.WriteLine("Write the sum you want to pay for credit");
+                                    Console.Write("Sum:");
+                                    int Pay = int.Parse(Console.ReadLine());
+                                    con.Open();
+                                    string com = string.Format($"select * from Credits where ID={id} and PersonID={ID}");
+                                    SqlCommand command2 = new SqlCommand(com, con);
+                                    SqlDataReader reader2 = command2.ExecuteReader();
+                                    double creditsum=0;
+                                    while (reader2.Read())
+                                    {
+                                        iscredit = true;
+                                        creditsum = double.Parse(reader2["Value"].ToString());
+                                        if (creditsum >= Pay)
+                                        {
+                                            creditsum -= Pay;
+                                        }
+                                        else
+                                        {
+                                            creditsum = 0;
+                                        }
+                                    }
+                                    con.Close();
+                                    if (iscredit == true)
+                                    {
+                                        con.Open();
+                                        com = string.Format($"update Credits set Value={creditsum} where ID={id}");
+                                        SqlCommand command3 = new SqlCommand(com, con);
+                                        SqlDataReader reader3 = command3.ExecuteReader();
+                                        System.Console.WriteLine("Payment completed successfully!");
+                                        con.Close();
+                                    }
+                                    else
+                                    {
+                                        System.Console.WriteLine("This ID doesnt exists!");
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    System.Console.WriteLine(ex);
+                                    System.Console.WriteLine("Error!");
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                }
                             }
                             break;
                     }
@@ -298,6 +363,7 @@ namespace HW
             }
             static Account Registration(SqlConnection con)
             {
+                Console.Clear();
                 System.Console.Write("Write you PhoneNumber(It will be your login):");
                 string PhoneNumber = Console.ReadLine();
                 System.Console.Write("Write you FirstName:");
@@ -334,11 +400,8 @@ namespace HW
                         account.MiddleName = MiddleName;
                         account.BirthDate = BirthDate;
                     };
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    System.Console.WriteLine("Your Account was added successfully");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Isregistered = true;
                     con.Open();
+                    Isregistered = true;
                     string command = string.Format($"select * from Account where Login={account.Login}");
                     SqlCommand com = new SqlCommand(command, con);
                     SqlDataReader reader = com.ExecuteReader();
