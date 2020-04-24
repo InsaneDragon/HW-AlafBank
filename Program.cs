@@ -31,8 +31,13 @@ namespace HW
             string stat = Console.ReadLine();
             if (stat == "1")
             {
-                isAdmin = true;
-                statuschoosed = true;
+                Console.Write("Password:");
+                string Password = Console.ReadLine();
+                if (Password == "1234")
+                {
+                    isAdmin = true;
+                    statuschoosed = true;
+                }
             }
             if (stat == "2") { statuschoosed = true; }
             while (statuschoosed == false)
@@ -47,8 +52,13 @@ namespace HW
                 stat = Console.ReadLine();
                 if (stat == "1")
                 {
-                    isAdmin = true;
-                    statuschoosed = true;
+                    Console.Write("Password:");
+                    string Password = Console.ReadLine();
+                    if (Password == "1234")
+                    {
+                        isAdmin = true;
+                        statuschoosed = true;
+                    }
                 }
                 if (stat == "2") { statuschoosed = true; }
             }
@@ -201,12 +211,12 @@ namespace HW
                                     expired = int.Parse(reader1["ExpiredCredits"].ToString());
                                 }
                                 con.Close();
-                                if (closedcredits == 0) score--;
-                                if (closedcredits == 1 || closedcredits == 2) score++;
-                                if (closedcredits >= 3) score += 2;
-                                if (expired == 4) score--;
-                                if (expired >= 5 && expired <= 7) score -= 2;
-                                if (expired > 7) score -= 3;
+                                if (closedcredits == 0) { score--; }
+                                if (closedcredits == 1 || closedcredits == 2) { score++; }
+                                if (closedcredits >= 3) { score += 2; }
+                                if (expired == 4) { score--; }
+                                if (expired >= 5 && expired <= 7) { score -= 2; }
+                                if (expired > 7) { score -= 3; }
                                 credit.Salary = Salary;
                                 Console.Clear();
                                 if (score > 11) { creditstatus = "Accepted"; Console.ForegroundColor = ConsoleColor.Green; System.Console.WriteLine("Congratulations your credit was accepted"); Console.ForegroundColor = ConsoleColor.White; }
@@ -293,7 +303,7 @@ namespace HW
                                     string com = string.Format($"select * from Credits where ID={id} and PersonID={ID}");
                                     SqlCommand command2 = new SqlCommand(com, con);
                                     SqlDataReader reader2 = command2.ExecuteReader();
-                                    double creditsum=0;
+                                    double creditsum = 0;
                                     while (reader2.Read())
                                     {
                                         iscredit = true;
@@ -310,11 +320,45 @@ namespace HW
                                     con.Close();
                                     if (iscredit == true)
                                     {
+                                        int FinishedCredits=0;
                                         con.Open();
                                         com = string.Format($"update Credits set Value={creditsum} where ID={id}");
                                         SqlCommand command3 = new SqlCommand(com, con);
                                         SqlDataReader reader3 = command3.ExecuteReader();
                                         System.Console.WriteLine("Payment completed successfully!");
+                                        con.Close();
+                                        con.Open();
+                                        com = string.Format($"select * from Credits where PersonID={ID}");
+                                        SqlCommand command4 = new SqlCommand(com, con);
+                                        SqlDataReader reader4 = command2.ExecuteReader();
+                                        int Delete = 0;
+                                        while (reader4.Read())
+                                        {
+                                            if (int.Parse(reader4["Value"].ToString()) == 0)
+                                            {
+                                                Delete = int.Parse(reader4["ID"].ToString());
+                                            }
+                                        }
+                                        con.Close();
+                                        con.Open();
+                                        com= string.Format($"delete from Credits where ID={Delete}");
+                                        SqlCommand command5 = new SqlCommand(com, con);
+                                        SqlDataReader reader5 = command5.ExecuteReader();
+                                        con.Close();
+                                        con.Open();
+                                        com = string.Format($"select * from Account where ID={ID}");
+                                        SqlCommand command7 = new SqlCommand(com, con);
+                                        SqlDataReader reader7 = command7.ExecuteReader();
+                                        while(reader7.Read())
+                                        {
+                                            FinishedCredits=int.Parse(reader7["FinishedCredits"].ToString());
+                                        }
+                                        con.Close();
+                                        FinishedCredits++;
+                                        con.Open();
+                                        com = string.Format($"update Account set FinishedCredits={FinishedCredits} where ID={ID}");
+                                        SqlCommand command6 = new SqlCommand(com, con);
+                                        SqlDataReader reader6 = command6.ExecuteReader();
                                         con.Close();
                                     }
                                     else
